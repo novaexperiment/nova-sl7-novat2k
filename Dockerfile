@@ -18,8 +18,8 @@ RUN yum clean all \
 # gcc gcc-c++ libgcc.i686 glibc-devel glibc-devel.i686 libstdc++.i686 \
 
 RUN yum clean all \
-    && yum install yum-conf-softwarecollections \
-    && yum install devtoolset-7 \
+    && yum -y install yum-conf-softwarecollections \
+    && yum -y install devtoolset-7 \
     && yum clean all
 
 RUN scl enable devtoolset-7 bash # TODO does this persist the rest of the file?
@@ -65,4 +65,6 @@ RUN useradd -u $MYUID -g $MYGID -ms /bin/bash $USERNAME && \
 
 USER $USERNAME
 
-ENTRYPOINT ["/bin/bash"]
+# ENTRYPOINT ["/bin/bash"]
+
+CMD [ "/nova/run.sh" ]
