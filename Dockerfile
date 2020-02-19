@@ -42,13 +42,12 @@ RUN yum clean all \
 RUN mkdir /nova
 
 RUN cd /nova \
-    && wget https://root.cern/download/root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz \
-    && tar -xzf root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz \
-    && rm root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz \
+    && wget -qO- https://root.cern/download/root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz | tar -xzf root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz \
     && source root/bin/thisroot.sh
 
 RUN cd /nova \
-    && git clone git@github.com:novaexperiment/jointfit_novat2k.git
+    && git clone git@github.com:novaexperiment/jointfit_novat2k.git \
+    || true
 
 RUN cd /nova \
     && git clone git@github.com:pjdunne/DummyLLH.git \
