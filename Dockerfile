@@ -42,7 +42,7 @@ RUN yum clean all \
 RUN mkdir /nova
 
 RUN cd /nova \
-    && wget -qO- https://root.cern/download/root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz | tar -xz - \
+    && wget -qO- https://root.cern/download/root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz | tar -xz \
     && source root/bin/thisroot.sh
 
 RUN cd /nova \
