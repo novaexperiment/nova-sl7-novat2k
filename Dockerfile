@@ -29,15 +29,32 @@ RUN yum clean all \
  libuuid-devel wget redhat-lsb-core openssh-server \
   && yum clean all
 
-RUN yum clean all \
- && yum --enablerepo=epel -y install htop osg-wn-client \
- libconfuse-devel x11vnc xvfb nss_wrapper gettext \
- && yum clean all
+# CHRIS
+# RUN yum clean all \
+#  && yum --enablerepo=epel -y install htop osg-wn-client \
+#  libconfuse-devel x11vnc xvfb nss_wrapper gettext \
+#  && yum clean all
 
-RUN yum clean all \
- && yum -y install java-11-openjdk \
- && yum clean all
+# RUN yum clean all \
+#  && yum -y install java-11-openjdk \
+#  && yum clean all
 
+RUN mkdir /nova
+
+RUN cd /nova \
+    && wget https://root.cern/download/root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz \
+    && tar -xzf root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz \
+    && rm root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz \
+    && source root/bin/thisroot.sh
+
+RUN cd /nova \
+    && git clone git@github.com:novaexperiment/jointfit_novat2k.git
+
+RUN cd /nova \
+    && git clone git@github.com:pjdunne/DummyLLH.git ||
+    true # make infallible?
+
+RUN echo 'echo Test' > /nova/run.sh && chmod +x /nova/run.sh
 
 ENV UPS_OVERRIDE="-H Linux64bit+3.10-2.17"
 
