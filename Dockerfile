@@ -51,8 +51,8 @@ RUN cd /nova \
     && git clone git@github.com:novaexperiment/jointfit_novat2k.git
 
 RUN cd /nova \
-    && git clone git@github.com:pjdunne/DummyLLH.git ||
-    true # make infallible?
+    && git clone git@github.com:pjdunne/DummyLLH.git \
+    || true # make infallible?
 
 RUN echo 'echo Test' > /nova/run.sh && chmod +x /nova/run.sh
 
