@@ -44,6 +44,9 @@ RUN cd /nova \
 
 RUN echo 'echo Test' > /nova/run.sh && chmod +x /nova/run.sh
 
+RUN echo ${SECRETKEY} > /nova/key.txt
+ENV SECRETKEY2 ${SECRETKEY}
+
 # CHRIS
 # ENV UPS_OVERRIDE="-H Linux64bit+3.10-2.17"
 
