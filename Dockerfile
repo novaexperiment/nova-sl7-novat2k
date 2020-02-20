@@ -42,11 +42,13 @@ RUN cd /nova \
     && git clone git@github.com:pjdunne/DummyLLH.git \
     || true # make infallible
 
+run cd /nova && git clone https://github.com/cjbackhouse/bifrost.git
+
 RUN echo 'echo Test' > /nova/run.sh && chmod +x /nova/run.sh
 
-ARG SECRETKEY
-RUN echo ${SECRETKEY} > /nova/key.txt
-ENV SECRETKEY2 ${SECRETKEY}
+ARG SECRETKEY2
+RUN echo ${SECRETKEY2} > /nova/key.txt
+ENV SECRETKEY3 ${SECRETKEY2}
 
 # CHRIS
 # ENV UPS_OVERRIDE="-H Linux64bit+3.10-2.17"
