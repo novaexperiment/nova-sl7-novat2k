@@ -30,7 +30,7 @@ RUN cd /nova \
     && wget -qO- https://root.cern/download/root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz | tar -xz \
     && source root/bin/thisroot.sh
 
-RUN cd /nova \
+RUN cd /nova/ \
     && git clone git@github.com:novaexperiment/jointfit_novat2k.git \
     || true # make infallible
 
@@ -44,6 +44,7 @@ RUN cd /nova \
 
 RUN echo 'echo Test' > /nova/run.sh && chmod +x /nova/run.sh
 
+ARG SECRETKEY
 RUN echo ${SECRETKEY} > /nova/key.txt
 ENV SECRETKEY2 ${SECRETKEY}
 
