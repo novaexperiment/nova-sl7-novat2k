@@ -26,7 +26,7 @@ RUN yum clean all \
 RUN scl enable devtoolset-7 bash # TODO does this persist the rest of the file?
 
 # Sigh, need new version for GIT_SSH_COMMAND
-RUN yum clean all && yum install rh-git29 && yum clean all
+RUN yum clean all && yum install -y rh-git29 && yum clean all
 
 RUN mkdir /nova
 
