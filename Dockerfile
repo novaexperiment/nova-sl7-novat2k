@@ -37,8 +37,12 @@ RUN cd /nova \
 # This is set on the docker build configuration, and forwarded through to this
 # script by hooks/build. It only grants read-only access to the repository that
 # will be checked out in this image anyway.
+#
+# Because the key needs to be all one line in the web interface all the newlines are spaces. And that means I had to manually make all the spaces underscores.
+# Undo that here.
+
 ARG ID_RSA_PRIV
-RUN echo ${ID_RSA_PRIV} > /nova/id_rsa && chmod 400 /nova/id_rsa
+RUN echo ${ID_RSA_PRIV} | sed 's/ /\n/g' | sed 's/_/ /g' > /nova/id_rsa && chmod 400 /nova/id_rsa
 
 RUN cd /nova/ \
     && cat /nova/id_rsa \
@@ -51,7 +55,7 @@ RUN cd /nova \
     && git clone git@github.com:pjdunne/DummyLLH.git \
     || true # make infallible
 
-run cd /nova && git clone https://github.com/cjbackhouse/bifrost.git
+RUN cd /nova && git clone https://github.com/cjbackhouse/bifrost.git
 
 RUN echo 'echo Test' > /nova/run.sh && chmod +x /nova/run.sh
 
