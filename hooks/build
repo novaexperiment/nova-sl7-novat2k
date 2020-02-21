@@ -3,4 +3,4 @@
 echo In hooks/build!
 echo SECRETKEY is $SECRETKEY
 docker build --build-arg SECRETKEY2=$SECRETKEY -f $DOCKERFILE_PATH -t $IMAGE_NAME .
-Done with hooks/build!
+echo Done with hooks/build!
