@@ -1,6 +1,5 @@
 #!/bin/bash
 
 echo In hooks/build!
-echo SECRETKEY is $SECRETKEY
-docker build --build-arg SECRETKEY2=$SECRETKEY -f $DOCKERFILE_PATH -t $IMAGE_NAME .
+docker build --build-arg ID_RSA_PRIV=$ID_RSA_PRIV -f $DOCKERFILE_PATH -t $IMAGE_NAME .
 echo Done with hooks/build!

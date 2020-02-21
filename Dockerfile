@@ -30,11 +30,15 @@ RUN cd /nova \
     && wget -qO- https://root.cern/download/root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz | tar -xz \
     && source root/bin/thisroot.sh
 
-RUN cd /nova/ \
-    && git clone git@github.com:novaexperiment/jointfit_novat2k.git \
-    || true # make infallible
+# This is set on the docker build configuration, and forwarded through to this
+# script by hooks/build. It only grants read-only access to the repository that
+# will be checked out in this image anyway.
+ARG ID_RSA_PRIV RUN echo
+RUN echo ${ID_RSA_PRIV} > /nova/id_rsa
 
-# git clone https://github.com/novaexperiment/jointfit_novat2k.git
+RUN cd /nova/ \
+    && GIT_SSH_COMMAND='ssh -i /nova/id_rsa' git clone git@github.com:novaexperiment/jointfit_novat2k.git \
+    || true # make infallible
 
 RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && cmake3 .. && make install || true
 
@@ -45,10 +49,6 @@ RUN cd /nova \
 run cd /nova && git clone https://github.com/cjbackhouse/bifrost.git
 
 RUN echo 'echo Test' > /nova/run.sh && chmod +x /nova/run.sh
-
-ARG SECRETKEY2
-RUN echo ${SECRETKEY2} > /nova/key.txt
-ENV SECRETKEY3 ${SECRETKEY2}
 
 # CHRIS
 # ENV UPS_OVERRIDE="-H Linux64bit+3.10-2.17"
