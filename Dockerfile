@@ -34,7 +34,7 @@ RUN cd /nova \
 # script by hooks/build. It only grants read-only access to the repository that
 # will be checked out in this image anyway.
 ARG ID_RSA_PRIV
-RUN echo ${ID_RSA_PRIV} > /nova/id_rsa
+RUN echo ${ID_RSA_PRIV} > /nova/id_rsa && chmod 400 /nova/id_rsa
 
 RUN cd /nova/ \
     && cat /nova/id_rsa \
