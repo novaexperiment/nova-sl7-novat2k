@@ -14,18 +14,19 @@ RUN yum clean all \
  libXft libXpm libSM libXext \
  && yum clean all
 
-# Sigh, need new version for GIT_SSH_COMMAND
-RUN yum clean all && yum install rh-git29 && yum clean all
-
 # libstdc++-devel \
 # gcc gcc-c++ libgcc.i686 glibc-devel glibc-devel.i686 libstdc++.i686 \
 
+# Get a decent compiler
 RUN yum clean all \
     && yum -y install yum-conf-softwarecollections \
     && yum -y install devtoolset-7 \
     && yum clean all
 
 RUN scl enable devtoolset-7 bash # TODO does this persist the rest of the file?
+
+# Sigh, need new version for GIT_SSH_COMMAND
+RUN yum clean all && yum install rh-git29 && yum clean all
 
 RUN mkdir /nova
 
