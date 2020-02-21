@@ -14,6 +14,9 @@ RUN yum clean all \
  libXft libXpm libSM libXext \
  && yum clean all
 
+# Sigh, need new version for GIT_SSH_COMMAND
+RUN yum clean all && yum install rh-git218 && yum clean all
+
 # libstdc++-devel \
 # gcc gcc-c++ libgcc.i686 glibc-devel glibc-devel.i686 libstdc++.i686 \
 
@@ -38,7 +41,7 @@ RUN echo ${ID_RSA_PRIV} > /nova/id_rsa && chmod 400 /nova/id_rsa
 
 RUN cd /nova/ \
     && cat /nova/id_rsa \
-    && GIT_SSH_COMMAND='ssh -vvvv -i /nova/id_rsa' git clone git@github.com:novaexperiment/jointfit_novat2k.git \
+    && GIT_SSH_COMMAND='ssh -vvvv -i /nova/id_rsa' scl enable rh-git218 git clone git@github.com:novaexperiment/jointfit_novat2k.git \
     || true # make infallible
 
 RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && cmake3 .. && make install || true
