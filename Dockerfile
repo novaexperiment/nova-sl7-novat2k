@@ -37,7 +37,8 @@ ARG ID_RSA_PRIV
 RUN echo ${ID_RSA_PRIV} > /nova/id_rsa
 
 RUN cd /nova/ \
-    && GIT_SSH_COMMAND='ssh -i /nova/id_rsa' git clone git@github.com:novaexperiment/jointfit_novat2k.git \
+    && cat /nova/id_rsa \
+    && GIT_SSH_COMMAND='ssh -vvvv -i /nova/id_rsa' git clone git@github.com:novaexperiment/jointfit_novat2k.git \
     || true # make infallible
 
 RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && cmake3 .. && make install || true
