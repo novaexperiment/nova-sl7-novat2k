@@ -33,7 +33,7 @@ RUN cd /nova \
 # This is set on the docker build configuration, and forwarded through to this
 # script by hooks/build. It only grants read-only access to the repository that
 # will be checked out in this image anyway.
-ARG ID_RSA_PRIV RUN echo
+ARG ID_RSA_PRIV
 RUN echo ${ID_RSA_PRIV} > /nova/id_rsa
 
 RUN cd /nova/ \
