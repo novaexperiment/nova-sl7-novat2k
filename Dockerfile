@@ -46,7 +46,7 @@ RUN echo ${ID_RSA_PRIV} | sed 's/ /\n/g' | sed 's/_/ /g' > /nova/id_rsa && chmod
 
 RUN cd /nova/ \
     && cat /nova/id_rsa \
-    && GIT_SSH_COMMAND='ssh -vvvv -i /nova/id_rsa' scl enable rh-git29 'git clone git@github.com:novaexperiment/jointfit_novat2k.git' \
+    && GIT_SSH_COMMAND='ssh -vvvv -i /nova/id_rsa -o StrictHostKeyChecking=no' scl enable rh-git29 'git clone git@github.com:novaexperiment/jointfit_novat2k.git' \
     || true # make infallible
 
 RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && cmake3 .. && make install || true
