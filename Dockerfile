@@ -28,8 +28,7 @@ RUN yum clean all && yum install -y rh-git29 && yum clean all
 RUN mkdir /nova
 
 RUN cd /nova \
-    && wget -qO- https://root.cern/download/root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz | tar -xz \
-    && source root/bin/thisroot.sh
+    && wget -qO- https://root.cern/download/root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz | tar -xz
 
 # This is set on the docker build configuration, and forwarded through to this
 # script by hooks/build. It only grants read-only access to the repository that
@@ -46,7 +45,7 @@ RUN cd /nova/ \
     && GIT_SSH_COMMAND='ssh -i /nova/id_rsa -o StrictHostKeyChecking=no' scl enable rh-git29 'git clone git@github.com:novaexperiment/jointfit_novat2k.git' \
     || true # make infallible
 
-RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && scl enable devtoolset-7 'cmake3 .. && make install' || true
+RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && scl enable devtoolset-7 'source /nova/root/bin/thisroot.sh && cmake3 .. && make install' || true
 
 RUN cd /nova \
     && git clone git@github.com:pjdunne/DummyLLH.git \
