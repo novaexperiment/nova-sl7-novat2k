@@ -14,9 +14,6 @@ RUN yum clean all \
  libXft libXpm libSM libXext \
  && yum clean all
 
-# libstdc++-devel \
-# gcc gcc-c++ libgcc.i686 glibc-devel glibc-devel.i686 libstdc++.i686 \
-
 # Get a decent compiler
 RUN yum clean all \
     && yum -y install yum-conf-softwarecollections \
@@ -46,10 +43,10 @@ RUN echo ${ID_RSA_PRIV} | sed 's/ /\n/g' | sed 's/_/ /g' > /nova/id_rsa && chmod
 
 RUN cd /nova/ \
     && cat /nova/id_rsa \
-    && GIT_SSH_COMMAND='ssh -vvvv -i /nova/id_rsa -o StrictHostKeyChecking=no' scl enable rh-git29 'git clone git@github.com:novaexperiment/jointfit_novat2k.git' \
+    && GIT_SSH_COMMAND='ssh -i /nova/id_rsa -o StrictHostKeyChecking=no' scl enable rh-git29 'git clone git@github.com:novaexperiment/jointfit_novat2k.git' \
     || true # make infallible
 
-RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && cmake3 .. && make install || true
+RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && scl enable devtoolset-7 'cmake3 .. && make install' || true
 
 RUN cd /nova \
     && git clone git@github.com:pjdunne/DummyLLH.git \
