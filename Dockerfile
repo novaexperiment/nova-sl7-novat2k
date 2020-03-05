@@ -48,9 +48,8 @@ RUN cd /nova \
 
 RUN cd /nova && git clone https://github.com/cjbackhouse/bifrost.git
 
-#RUN echo 'echo Test' > /nova/run.sh && chmod +x /nova/run.sh
-
-RUN echo '#!/bin/bash\nsource /nova/root/bin/thisroot.sh\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\ncd \nscl enable devtoolset-7 \'root -l -b -q $JOINTFIT_DIR/CAFAna/load_libs.C ~/jf/inside.C+\'\n' > /nova/run.sh && chmod +x /nova/run.sh
+# Create the CMD script
+RUN echo -e '#!'"/bin/bash\nsource /nova/root/bin/thisroot.sh\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\nscl enable devtoolset-7 'root -l -b -q \$JOINTFIT_DIR/CAFAna/load_libs.C ~/jf/inside.C+'" > /nova/run.sh && chmod +x /nova/run.sh
 
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
