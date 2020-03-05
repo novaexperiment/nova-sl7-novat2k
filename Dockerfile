@@ -1,5 +1,3 @@
-# This Dockerfile is used to build an headles vnc image based on Centos
-
 FROM scientificlinux/sl:7
 
 MAINTAINER Chris Backhouse "c.backhouse@ucl.ac.uk"
@@ -19,8 +17,6 @@ RUN yum clean all \
     && yum -y install yum-conf-softwarecollections \
     && yum -y install devtoolset-7 \
     && yum clean all
-
-RUN scl enable devtoolset-7 bash # TODO does this persist the rest of the file?
 
 # Sigh, need new version for GIT_SSH_COMMAND
 RUN yum clean all && yum install -y rh-git29 && yum clean all
@@ -48,15 +44,14 @@ RUN cd /nova/ \
 RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && scl enable devtoolset-7 'source /nova/root/bin/thisroot.sh && cmake3 .. && make install' || true
 
 RUN cd /nova \
-    && git clone git@github.com:pjdunne/DummyLLH.git \
-    || true # make infallible
+    && git clone https://github.com/pjdunne/DummyLLH.git
 
 RUN cd /nova && git clone https://github.com/cjbackhouse/bifrost.git
 
-RUN echo 'echo Test' > /nova/run.sh && chmod +x /nova/run.sh
+#RUN echo 'echo Test' > /nova/run.sh && chmod +x /nova/run.sh
 
-# CHRIS
-# ENV UPS_OVERRIDE="-H Linux64bit+3.10-2.17"
+RUN echo '#!/bin/bash\nsource /nova/root/bin/thisroot.sh\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\ncd \nscl enable devtoolset-7 \'root -l -b -q $JOINTFIT_DIR/CAFAna/load_libs.C ~/jf/inside.C+\'\n' > /nova/run.sh && chmod +x /nova/run.sh
+
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
