@@ -26,6 +26,10 @@ RUN mkdir /nova
 RUN cd /nova \
     && wget -qO- https://root.cern/download/root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz | tar -xz
 
+RUN cd /nova && git clone https://github.com/pjdunne/DummyLLH.git
+
+RUN cd /nova && git clone https://github.com/cjbackhouse/bifrost.git
+
 # This is set on the docker build configuration, and forwarded through to this
 # script by hooks/build. It only grants read-only access to the repository that
 # will be checked out in this image anyway.
@@ -37,19 +41,12 @@ ARG ID_RSA_PRIV
 RUN echo ${ID_RSA_PRIV} | sed 's/ /\n/g' | sed 's/_/ /g' > /nova/id_rsa && chmod 400 /nova/id_rsa
 
 RUN cd /nova/ \
-    && cat /nova/id_rsa \
-    && GIT_SSH_COMMAND='ssh -i /nova/id_rsa -o StrictHostKeyChecking=no' scl enable rh-git29 'git clone git@github.com:novaexperiment/jointfit_novat2k.git' \
-    || true # make infallible
+    && GIT_SSH_COMMAND='ssh -i /nova/id_rsa -o StrictHostKeyChecking=no' scl enable rh-git29 'git clone git@github.com:novaexperiment/jointfit_novat2k.git'
 
-RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && scl enable devtoolset-7 'source /nova/root/bin/thisroot.sh && cmake3 .. && make install' || true
-
-RUN cd /nova \
-    && git clone https://github.com/pjdunne/DummyLLH.git
-
-RUN cd /nova && git clone https://github.com/cjbackhouse/bifrost.git
+RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && scl enable devtoolset-7 'source /nova/root/bin/thisroot.sh && cmake3 .. && make install'
 
 # Create the CMD script
-RUN echo -e '#!'"/bin/bash\nsource /nova/root/bin/thisroot.sh\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\nscl enable devtoolset-7 'root -l -b -q \$JOINTFIT_DIR/CAFAna/load_libs.C ~/jf/inside.C+'" > /nova/run.sh && chmod +x /nova/run.sh
+RUN echo -e '#!'"/bin/bash\nsource /nova/root/bin/thisroot.sh\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\nscl enable devtoolset-7 'root -l -b -q \$JOINTFIT_DIR/CAFAna/load_libs.C \$JOINTFIT_DIR/CAFAna/run.C+'" > /nova/run.sh && chmod +x /nova/run.sh
 
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
