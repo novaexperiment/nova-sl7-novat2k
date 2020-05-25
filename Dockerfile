@@ -14,7 +14,7 @@ RUN yum clean all \
 
 # Get a decent compiler
 RUN yum clean all \
-    && yum -y install yum-conf-softwarecollections \
+    && yum -y install centos-release-scl \
     && yum -y install devtoolset-7 \
     && yum clean all
 
