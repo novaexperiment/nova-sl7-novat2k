@@ -19,7 +19,7 @@ RUN yum clean all \
     && yum clean all
 
 # Sigh, need new version for GIT_SSH_COMMAND
-RUN yum clean all && yum install -y rh-git29 && yum clean all
+RUN yum clean all && yum install -y rh-git218 && yum clean all
 
 RUN mkdir /nova
 
@@ -41,7 +41,7 @@ ARG ID_RSA_PRIV
 RUN echo ${ID_RSA_PRIV} | sed 's/ /\n/g' | sed 's/_/ /g' > /nova/id_rsa && chmod 400 /nova/id_rsa
 
 RUN cd /nova/ \
-    && GIT_SSH_COMMAND='ssh -i /nova/id_rsa -o StrictHostKeyChecking=no' scl enable rh-git29 'git clone git@github.com:novaexperiment/jointfit_novat2k.git'
+    && GIT_SSH_COMMAND='ssh -i /nova/id_rsa -o StrictHostKeyChecking=no' scl enable rh-git218 'git clone git@github.com:novaexperiment/jointfit_novat2k.git'
 
 RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && scl enable devtoolset-7 'source /nova/root/bin/thisroot.sh && cmake3 .. && make install'
 
