@@ -46,7 +46,7 @@ RUN cd /nova/ \
 RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && scl enable devtoolset-7 'source /nova/root/bin/thisroot.sh && cmake3 .. && make install'
 
 # Create the CMD script
-RUN echo -e '#!'"/bin/bash\nsource /nova/root/bin/thisroot.sh\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\nscl enable devtoolset-7 'root -l -b -q \$JOINTFIT_DIR/CAFAna/load_libs.C \$JOINTFIT_DIR/CAFAna/run.C+'" > /nova/run.sh && chmod +x /nova/run.sh
+RUN echo -e '#!'"/bin/bash\nsource /nova/root/bin/thisroot.sh\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\nscl enable devtoolset-7 'root -l -b -q \$JOINTFIT_DIR/CAFAna/load_libs.C \$JOINTFIT_DIR/CAFAna/run.C+\\'(\"\$@\")\\''" > /nova/run.sh && chmod +x /nova/run.sh
 
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
