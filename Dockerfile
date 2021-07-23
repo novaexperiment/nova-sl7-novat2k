@@ -28,7 +28,7 @@ RUN cd /nova \
 
 RUN cd /nova && git clone https://github.com/pjdunne/DummyLLH.git
 
-RUN cd /nova && git clone https://github.com/cjbackhouse/bifrost.git
+RUN cd /nova && git clone -b syst_groups https://github.com/cjbackhouse/bifrost.git
 
 # This is set on the docker build configuration, and forwarded through to this
 # script by hooks/build. It only grants read-only access to the repository that
