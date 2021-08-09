@@ -6,6 +6,8 @@ joint fit.
 
 # Instructions for building docker image locally
 
+You may also use podman by simply replacing "docker" with "podman" throughout.
+
     # Clone this repository
     git clone git@github.com:novaexperiment/nova-sl7-novat2k.git
     cd nova-sl7-novat2k.git
@@ -18,6 +20,6 @@ joint fit.
     docker build -t novaexperiment/nova-sl7-novat2k .
 
     # Upload the resulting image to dockerhub
-    docker login
-    docker push novaexperiment/nova-sl7-novat2k:latest
+    docker login docker.io
+    docker push docker.io/novaexperiment/nova-sl7-novat2k:latest
     docker logout

@@ -1,4 +1,4 @@
-FROM centos:7.6.1810
+FROM docker.io/centos:7.6.1810
 
 MAINTAINER Chris Backhouse "c.backhouse@ucl.ac.uk"
 ENV REFRESHED_AT 2020-02-19
