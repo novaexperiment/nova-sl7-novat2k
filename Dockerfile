@@ -19,16 +19,21 @@ RUN yum clean all \
     && yum clean all
 
 # Sigh, need new version for GIT_SSH_COMMAND
-RUN yum clean all && yum install -y rh-git218 && yum clean all
+# RUN yum clean all && yum install -y rh-git218 && yum clean all
 
 RUN mkdir /nova
 
+# Fetch ROOT binaries
 RUN cd /nova \
     && wget -qO- https://root.cern/download/root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz | tar -xz
 
+# Fetch DummyLLH from git
 RUN cd /nova && git clone https://github.com/pjdunne/DummyLLH.git
 
+# Fetch Bifrost from git
 RUN cd /nova && git clone -b syst_groups https://github.com/cjbackhouse/bifrost.git
+
+# This ID_RSA_PRIV dance is to make things work on dockerhub
 
 # This is set on the docker build configuration, and forwarded through to this
 # script by hooks/build. It only grants read-only access to the repository that
@@ -37,16 +42,20 @@ RUN cd /nova && git clone -b syst_groups https://github.com/cjbackhouse/bifrost.
 # Because the key needs to be all one line in the web interface all the newlines are spaces. And that means I had to manually make all the spaces underscores.
 # Undo that here.
 
-ARG ID_RSA_PRIV
-RUN echo ${ID_RSA_PRIV} | sed 's/ /\n/g' | sed 's/_/ /g' > /nova/id_rsa && chmod 400 /nova/id_rsa
+# ARG ID_RSA_PRIV
+# RUN echo ${ID_RSA_PRIV} | sed 's/ /\n/g' | sed 's/_/ /g' > /nova/id_rsa && chmod 400 /nova/id_rsa
 
-RUN cd /nova/ \
-    && GIT_SSH_COMMAND='ssh -i /nova/id_rsa -o StrictHostKeyChecking=no' scl enable rh-git218 'git clone git@github.com:novaexperiment/jointfit_novat2k.git'
+# RUN cd /nova/ \
+#    && GIT_SSH_COMMAND='ssh -i /nova/id_rsa -o StrictHostKeyChecking=no' scl enable rh-git218 'git clone git@github.com:novaexperiment/jointfit_novat2k.git'
 
+# For a local build, it's much easier to just check out the package beforehand
+COPY jointfit_novat2k /nova/jointfit_novat2k
+
+# Build everything
 RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && scl enable devtoolset-7 'source /nova/root/bin/thisroot.sh && cmake3 .. && make install'
 
 # Create the CMD script
-RUN echo -e '#!'"/bin/bash\nsource /nova/root/bin/thisroot.sh\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\necho Versions:\necho -n 'jointfit_novat2k: '\ncd \$JOINTFIT_DIR\ngit describe --tags\necho -n 'bifrost: '\ncd /nova/bifrost\ngit describe --tags\necho -n 'DummyLLH: '\ncd /nova/DummyLLH/\ngit describe --tags\ncd `mktemp -d`\nscl enable devtoolset-7 'root -l -b -q \$JOINTFIT_DIR/CAFAna/load_libs.C \$JOINTFIT_DIR/CAFAna/run.C++'" > /nova/run.sh && chmod +x /nova/run.sh
+RUN echo -e '#!'"/bin/bash\nsource /nova/root/bin/thisroot.sh\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\necho Versions:\necho -n 'jointfit_novat2k: '\ncd \$JOINTFIT_DIR\ngit describe --tags\necho -n 'bifrost: '\ncd /nova/bifrost\ngit describe --tags\necho -n 'DummyLLH: '\ncd /nova/DummyLLH/\ngit describe --tags\ncd \`mktemp -d\`\nscl enable devtoolset-7 'root -l -b -q \$JOINTFIT_DIR/CAFAna/load_libs.C \$JOINTFIT_DIR/CAFAna/run.C++'" > /nova/run.sh && chmod +x /nova/run.sh
 
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
