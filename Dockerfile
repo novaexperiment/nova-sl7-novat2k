@@ -31,7 +31,7 @@ RUN cd /nova \
 RUN cd /nova && git clone https://github.com/pjdunne/DummyLLH.git
 
 # Fetch Bifrost from git
-RUN cd /nova && git clone -b syst_groups https://github.com/cjbackhouse/bifrost.git
+RUN cd /nova && git clone https://github.com/cjbackhouse/bifrost.git
 
 # This ID_RSA_PRIV dance is to make things work on dockerhub
 

@@ -14,6 +14,7 @@ joint fit.
     git clone git@github.com:novaexperiment/jointfit_novat2k
 
     # Build container using the default Dockerfile
+    # If you are trying to pick up an updated external repository you may need --no-cache
     docker build -t novaexperiment/nova-sl7-novat2k .
 
     # Upload the resulting image to dockerhub
