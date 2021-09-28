@@ -23,3 +23,8 @@ You may also use podman by simply replacing "docker" with "podman" throughout.
     docker login docker.io
     docker push docker.io/novaexperiment/nova-sl7-novat2k:latest
     docker logout
+
+To create a .sif file without going via dockerhub:
+
+   docker save <image_id> -o img.tar
+   singularity build img.sif img.tar
