@@ -26,5 +26,5 @@ You may also use podman by simply replacing "docker" with "podman" throughout.
 
 To create a .sif file without going via dockerhub:
 
-   docker save <image_id> -o img.tar
-   singularity build img.sif img.tar
+    docker save <image_id> -o img.tar
+    singularity build img.sif img.tar
