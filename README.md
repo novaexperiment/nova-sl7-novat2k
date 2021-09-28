@@ -10,7 +10,7 @@ You may also use podman by simply replacing "docker" with "podman" throughout.
 
     # Clone this repository
     git clone git@github.com:novaexperiment/nova-sl7-novat2k.git
-    cd nova-sl7-novat2k.git
+    cd nova-sl7-novat2k
 
     # Fetch the fitting code which we are packaging, among other things
     git clone git@github.com:novaexperiment/jointfit_novat2k
