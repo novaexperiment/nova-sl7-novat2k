@@ -17,11 +17,11 @@ You may also use podman by simply replacing "docker" with "podman" throughout.
 
     # Build container using the default Dockerfile
     # If you are trying to pick up an updated external repository you may need --no-cache
-    docker build -t novaexperiment/nova-sl7-novat2k .
+    docker build -t ghcr.io/novaexperiment/nova-sl7-novat2k .
 
     # Upload the resulting image to dockerhub
-    docker login docker.io
-    docker push docker.io/novaexperiment/nova-sl7-novat2k:latest
+    docker login ghcr.io
+    docker push ghcr.io/novaexperiment/nova-sl7-novat2k:latest
     docker logout
 
 To create a .sif file without going via dockerhub:
