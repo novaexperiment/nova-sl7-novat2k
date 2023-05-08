@@ -28,10 +28,10 @@ RUN cd /nova \
     && wget -qO- https://root.cern/download/root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz | tar -xz
 
 # Fetch DummyLLH from git
-RUN cd /nova && git clone https://github.com/nova-t2k/DummyLLH.git
+RUN cd /nova && git clone -b v6 --single-branch https://github.com/nova-t2k/DummyLLH.git
 
 # Fetch Bifrost from git
-RUN cd /nova && git clone https://github.com/nova-t2k/bifrost.git
+RUN cd /nova && git clone -b v6 --single-branch https://github.com/nova-t2k/bifrost.git
 
 # This ID_RSA_PRIV dance is to make things work on dockerhub
 
