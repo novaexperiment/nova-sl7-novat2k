@@ -1,0 +1,1 @@
+singularity exec -B/cvmfs/nova.osgstorage.org/analysis/novat2k/fit_inputs/nova_inputs/v7/jf_mc:/jf_mc -B/cvmfs/nova.osgstorage.org/analysis/novat2k/fit_inputs/nova_inputs/v7/jf_data_asimov0:/jf_data image.sif /nova/run_client.sh
