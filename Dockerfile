@@ -33,13 +33,13 @@ RUN dnf -y install \
 
 RUN mkdir /nova
 
-# For a local build, it's much easier to just check out the package beforehand
-COPY jointfit_novat2k /nova/jointfit_novat2k
-COPY nudock /nova/nudock
-
 # Fetch NuDock from git
 RUN cd /nova \
     && git clone --recurse-submodules https://github.com/NuDock/nudock.git
+COPY nudock /nova/nudock
+
+# For a local build, it's much easier to just check out the package beforehand
+COPY jointfit_novat2k /nova/jointfit_novat2k
 
 # Build everything
 RUN cd /nova/nudock/ && cmake -B build -DCMAKE_INSTALL_PREFIX:PATH=/nova/jointfit_novat2k  && cmake --build build && cmake --install build
