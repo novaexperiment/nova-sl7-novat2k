@@ -5,6 +5,7 @@ LABEL org.opencontainers.image.description="Docker image with the NOvA CAFAna se
 
 ENV REFRESHED_AT 2025-07-29
 
+# Install all the core software
 RUN dnf -y update && \
     dnf -y install epel-release && \
     dnf -y groupinstall "Development Tools" && \
@@ -17,37 +18,42 @@ RUN dnf -y update && \
         cmake \
         && dnf clean all
 
-RUN mkdir /nova
+# Install ROOT
+RUN dnf -y install \
+        root root-cli root-cling root-core root-fonts root-gdml \
+        root-genvector root-geom root-graf root-gui \
+        root-hbook root-hist root-icons root-io root-io-xml root-mathcore \
+        root-mathmore root-matrix root-minuit root-minuit2 root-mlp \
+        root-montecarlo-eg root-montecarlo-pythia8 root-multiproc root-net \
+        root-net-auth root-net-davix root-net-rpdutils \ 
+        root-netx root-physics root-roofit root-smatrix \ 
+        root-splot root-sql-sqlite root-tmva root-tmva-gui \
+        root-tmva-python root-tree root-tree-player root-tree-viewer \
+        root-unfold root-unuran
 
-# Fetch ROOT binaries
-RUN cd /nova \
-    && wget -qO- https://root.cern/download/root_v6.30.06.Linux-almalinux8.9-x86_64-gcc8.5.tar.gz | tar -xz
-#    && wget -qO- https://root.cern/download/root_v6.26.16.Linux-AlmaLinux8.9-x86_64-gcc8.5.tar.gz | tar -xz
-#    && wget -qO- https://root.cern/download/root_v6.36.02.Linux-almalinux8.10-x86_64-gcc8.5.tar.gz | tar -xz
-#    && wget -qO- https://root.cern/download/root_v6.18.04.Linux-centos7-x86_64-gcc4.8.tar.gz | tar -xz
-#    && wget -qO- https://root.cern/download/root_v6.24.08.Linux-centos7-x86_64-gcc4.8.tar.gz | tar -xz
+RUN mkdir /nova
 
 # For a local build, it's much easier to just check out the package beforehand
 COPY jointfit_novat2k /nova/jointfit_novat2k
+COPY nudock /nova/nudock
 
 # Fetch NuDock from git
 RUN cd /nova \
-    && git clone --recurse-submodules https://github.com/ArturSztuc/nudock.git
+    && git clone --recurse-submodules https://github.com/NuDock/nudock.git
 
 # Build everything
-RUN cd /nova/nudock/ && mkdir build_nudock && cd build_nudock && source /nova/root/bin/thisroot.sh && cmake -DCMAKE_INSTALL_PREFIX:PATH=/nova/jointfit_novat2k .. && make install
+RUN cd /nova/nudock/ && cmake -B build -DCMAKE_INSTALL_PREFIX:PATH=/nova/jointfit_novat2k  && cmake --build build && cmake --install build
 
-RUN cd /nova/jointfit_novat2k/ && mkdir build && cd build && source /nova/root/bin/thisroot.sh && cmake -DCMAKE_PREFIX_PATH=/nova/jointfit_novat2k .. && make install
+RUN cd /nova/jointfit_novat2k/ && ls && cmake -B build -DCMAKE_PREFIX_PATH=/nova/jointfit_novat2k && cmake --build build && cmake --install build
 
-# Create the CMD script
-RUN echo -e '#!'"/bin/bash\nsource /nova/root/bin/thisroot.sh\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\necho Versions:\necho -n 'jointfit_novat2k: '\ncd \$JOINTFIT_DIR\ngit describe --tags\necho -n 'bifrost: '\ncd /nova/bifrost\ngit describe --tags\necho -n 'DummyLLH: '\ncd /nova/DummyLLH/\ngit describe --tags\ncd \`mktemp -d\`\nroot -l -b -q \$JOINTFIT_DIR/CAFAna/load_libs.C \$JOINTFIT_DIR/CAFAna/run.C++" > /nova/run.sh && chmod +x /nova/run.sh
+RUN echo -e '#!'"/bin/bash\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\necho Versions:\necho -n 'jointfit_novat2k: '\ncd \$JOINTFIT_DIR\ngit describe --tags\ncd \`mktemp -d\`\nroot -l -b -q \$JOINTFIT_DIR/CAFAna/load_libs.C \$JOINTFIT_DIR/CAFAna/run.C++" > /nova/run.sh && chmod +x /nova/run.sh
 
-RUN echo -e '#!'"/bin/bash\nsource /nova/root/bin/thisroot.sh\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\necho Versions:\necho -n 'jointfit_novat2k: '\ncd \$JOINTFIT_DIR\ngit describe --tags\necho -n 'bifrost: '\ncd /nova/bifrost\ngit describe --tags\necho -n 'DummyLLH: '\ncd /nova/DummyLLH/\ngit describe --tags\ncd \`mktemp -d\`\nroot -l -b -q \$JOINTFIT_DIR/CAFAna/load_libs.C \$JOINTFIT_DIR/CAFAna/run_client.C++" > /nova/run_client.sh && chmod +x /nova/run_client.sh
+RUN echo -e '#!'"/bin/bash\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\necho Versions:\necho -n 'jointfit_novat2k: '\ncd \$JOINTFIT_DIR\ngit describe --tags\ncd \`mktemp -d\`\nroot -l -b -q \$JOINTFIT_DIR/CAFAna/load_libs.C \$JOINTFIT_DIR/CAFAna/run_client.C++" > /nova/run_client.sh && chmod +x /nova/run_client.sh
 
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 ENV TERM=xterm
-ENV LD_LIBRARY_PATH=/nova/jointfit_novat2k/lib65:/nova/root/lib:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=/nova/jointfit_novat2k/lib64
 
 # Create a nova user (UID and GID should match the Mac user), add to suoders, and switch to it
 ENV USERNAME=nova
