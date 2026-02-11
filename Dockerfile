@@ -36,7 +36,6 @@ RUN mkdir /nova
 # Fetch NuDock from git
 RUN cd /nova \
     && git clone --recurse-submodules https://github.com/NuDock/nudock.git
-COPY nudock /nova/nudock
 
 # For a local build, it's much easier to just check out the package beforehand
 COPY jointfit_novat2k /nova/jointfit_novat2k
