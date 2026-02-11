@@ -3,7 +3,7 @@ FROM docker.io/almalinux:8.9
 LABEL org.opencontainers.image.authors="Artur Sztuc <a.sztuc@ucl.ac.uk>"
 LABEL org.opencontainers.image.description="Docker image with the NOvA CAFAna server for the joint NOvA-T2K group"
 
-ENV REFRESHED_AT 2025-07-29
+ENV REFRESHED_AT=2025-07-29
 
 # Install all the core software
 RUN dnf -y update && \
