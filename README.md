@@ -13,7 +13,7 @@ You may also use podman by simply replacing "docker" with "podman" throughout.
     cd nova-sl7-novat2k
 
     # Fetch the fitting code which we are packaging, among other things
-    git clone git@github.com:novaexperiment/jointfit_novat2k
+    git clone -b feature/nudock_2024Ana git@github.com:novaexperiment/jointfit_novat2k 
 
     # Build container using the default Dockerfile
     # If you are trying to pick up an updated external repository you may need --no-cache
