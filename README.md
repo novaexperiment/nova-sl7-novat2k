@@ -13,7 +13,7 @@ You may also use podman by simply replacing "docker" with "podman" throughout.
     cd nova-sl7-novat2k
 
     # Fetch the fitting code which we are packaging, among other things
-    git clone --recurse-submodules git@github.com:novaexperiment/jointfit_novat2k
+    git clone -b feature/nudock_2024Ana --recurse-submodules git@github.com:novaexperiment/jointfit_novat2k
 
     # Build container using the default Dockerfile
     # If you are trying to pick up an updated external repository you may need --no-cache
@@ -91,3 +91,4 @@ livetime) at the next `/log_likelihood` evaluation. Modes:
 Its schema is not yet in NuDock main, so it ships in this package
 (`jointfit_novat2k/CAFAna/schemas/set_asimov_point.schema.json`, identical to
 the one on NuDock's `mach3_branch`) and is registered with an explicit path.
+
