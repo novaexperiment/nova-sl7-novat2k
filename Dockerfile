@@ -31,6 +31,13 @@ RUN dnf -y install \
         root-tmva-python root-tree root-tree-player root-tree-viewer \
         root-unfold root-unuran
 
+# Dependencies for OscLib (cafana/OscLib, submodule of jointfit_novat2k):
+# Eigen (headers), GSL, Boost (header-only use)
+RUN dnf -y install dnf-plugins-core && \
+    dnf config-manager --set-enabled powertools && \
+    dnf -y install eigen3-devel gsl-devel boost-devel && \
+    dnf clean all
+
 RUN mkdir /nova
 
 # Fetch NuDock from git
