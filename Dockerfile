@@ -32,11 +32,20 @@ RUN dnf -y install \
         root-unfold root-unuran
 
 # Dependencies for OscLib (cafana/OscLib, submodule of jointfit_novat2k):
-# Eigen (headers), GSL, Boost (header-only use)
+# GSL and Boost (header-only use) from dnf; Eigen 3.4.0 from upstream, because
+# EL8's eigen3-devel is 3.3.4, whose NEON vectorization is broken with gcc 8.5
+# on aarch64 (local arm64 Mac builds)
 RUN dnf -y install dnf-plugins-core && \
     dnf config-manager --set-enabled powertools && \
-    dnf -y install eigen3-devel gsl-devel boost-devel && \
+    dnf -y install gsl-devel boost-devel && \
     dnf clean all
+
+RUN cd /tmp && \
+    curl -sSLO https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz && \
+    tar xzf eigen-3.4.0.tar.gz && \
+    cmake -S eigen-3.4.0 -B eigen-3.4.0/build -DCMAKE_INSTALL_PREFIX=/usr/local && \
+    cmake --install eigen-3.4.0/build && \
+    rm -rf /tmp/eigen-3.4.0*
 
 RUN mkdir /nova
 
