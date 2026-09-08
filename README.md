@@ -72,7 +72,7 @@ noted):
 | Endpoint | Request | Response |
 |----------|---------|----------|
 | `/ping` | string | `"pong"` |
-| `/set_parameters` | `{osc_pars: {...}, sys_pars: {...}}` | status object |
+| `/set_parameters` | `{osc_pars: {...}, sys_pars: {...}}` (NSI keys optional, see below) | status object |
 | `/log_likelihood` | string (ignored) | `{log_likelihood, duration_us}` |
 | `/get_parameter_names` | string (ignored) | `{osc_pars: [...], sys_pars: [...]}` |
 | `/set_asimov_point` | string: `"asimov"` (or empty), `"poisson"`, `"reset"` | status string |
@@ -91,4 +91,29 @@ livetime) at the next `/log_likelihood` evaluation. Modes:
 Its schema is not yet in NuDock main, so it ships in this package
 (`jointfit_novat2k/CAFAna/schemas/set_asimov_point.schema.json`, identical to
 the one on NuDock's `mach3_branch`) and is registered with an explicit path.
+
+## Non-standard interactions (NSI)
+
+The server oscillates with `OscCalcPMNS_NSI` (OscLib), wrapped as
+`OscCalcPMNS_NSIHashed` (`jointfit_novat2k/CAFAna/Experiment/`) so that
+CAFAna's oscillated-spectrum caches also key on the NSI parameters. Besides the
+six standard parameters, `osc_pars` accepts nine **optional** NSI keys, all
+defaulting to 0 (standard three-flavour oscillations, bit-identical to the
+previous `OscCalcPMNSOpt` server):
+
+| Key | Meaning |
+|-----|---------|
+| `Eps_ee`, `Eps_mumu`, `Eps_tautau` | real diagonal ε |
+| `Eps_emu`, `Eps_etau`, `Eps_mutau` | modulus of the off-diagonal ε |
+| `Delta_emu`, `Delta_etau`, `Delta_mutau` | phase of the off-diagonal ε (radians) |
+
+Every NSI key is reset to 0 on each `/set_parameters` call that omits it, so
+clients that never send them are unaffected. `/set_asimov_point` snapshots the
+NSI values too, so NSI Asimov data can be generated on the fly. The NSI-aware
+`set_parameters` schema (NuDock's own rejects unknown `osc_pars` keys) ships in
+`jointfit_novat2k/CAFAna/schemas/set_parameters.schema.json` and is registered
+with an explicit path, like `set_asimov_point`.
+
+Test against a running Docker server with `./run_test_nsi_docker.sh` (expect
+`ALL CHECKS PASSED`).
 
