@@ -66,7 +66,7 @@ singularity shell --writable image.sif
 
 # Server endpoints
 
-The server (`jointfit_novat2k/CAFAna/run.C`) registers five JSON-over-HTTP
+The server (`jointfit_novat2k/CAFAna/run.C`) registers seven JSON-over-HTTP
 endpoints (schemas: see [Schemas](#schemas) below):
 
 | Endpoint | Request | Response |
@@ -76,17 +76,64 @@ endpoints (schemas: see [Schemas](#schemas) below):
 | `/log_likelihood` | string (ignored) | `{log_likelihood, duration_us}` |
 | `/get_parameter_names` | string (ignored) | `{osc_pars: [...], sys_pars: [...]}` |
 | `/set_asimov_point` | string: `"asimov"` (or empty), `"poisson"`, `"reset"` | status string |
+| `/get_data_spectrum` | string (ignored) | data spectrum of every sample, see [Spectra](#spectra) |
+| `/get_mc_spectrum` | string (ignored) | expected spectrum of every sample at the current parameters, see [Spectra](#spectra) |
+
+Systematic shifts not listed in a `/set_parameters` request keep their previous
+value (unlike the NSI parameters, which are reset to 0).
 
 `/set_asimov_point` generates Asimov fake data **on the fly** — the in-server
 equivalent of a `make_fakedata.C` output file, without restarting the server.
 The client first sends the desired Asimov point via `/set_parameters`; calling
 `/set_asimov_point` then snapshots those parameters, and the data spectra are
 regenerated from them (prediction + cosmics, at the original data POT /
-livetime) at the next `/log_likelihood` evaluation. Modes:
+livetime) at the next `/log_likelihood` (or `/get_data_spectrum`) call. Modes:
 
 - `"asimov"` (or `""`): Asimov data at the snapshotted parameters
 - `"poisson"`: same, plus Poisson fluctuations (mock data; unseeded, differs every time)
 - `"reset"`: restore the original data loaded from `/jf_data`
+
+## Spectra
+
+`/get_data_spectrum` and `/get_mc_spectrum` return, for every sample, the two
+spectra the likelihood compares:
+
+- data: the loaded data file, or the Asimov/mock data after `/set_asimov_point`
+- MC: the expectation at the current `/set_parameters` point, i.e. the
+  (systematically shifted) beam prediction plus cosmics, at the data exposure
+
+so the χ² can be recomputed from them bin by bin (CAFAna's Poisson likelihood,
+`LogLikelihood()` in `CAFAna/Core/Utilities.cxx`). The request string is not
+used yet (all samples are returned). The reply follows the shared schema:
+`sample_names`, plus per sample `dimensions` (always 1 for NOvA),
+`axis_titles`, `bin_edges` (a single edge list) and `bin_values` (one value per
+bin, no under/overflow).
+
+| Samples | Bins |
+|---------|------|
+| `numu_fhc_1`..`numu_fhc_4`, `numu_rhc_1`..`numu_rhc_4` | 22 bins of reconstructed neutrino energy, 0–5 GeV, variable width |
+| `nueLowE_fhc` | 4 bins of reconstructed nue energy, 0–2 GeV |
+| `nue_fhc`, `nue_rhc` | 23 analysis bins, see below |
+
+The `nue_fhc`/`nue_rhc` axis is NOvA's flattened analysis-bin index (it
+matches `kNue2024AxisMergedPeripheral` in novasoft's
+`3FlavorAna/Cuts/NueCuts2024.cxx`): bin = 9 × class + ⌊E / 0.5 GeV⌋, with
+class 0 = low-CVN core and 1 = high-CVN core, and all peripheral events in
+bin 20.
+
+| Bins | Content |
+|------|---------|
+| 0–8 | low-CVN core, reconstructed energy 0–4.5 GeV in 0.5 GeV steps |
+| 9–17 | high-CVN core, same energy steps |
+| 20 | peripheral |
+| 18, 19, 21, 22 | always empty |
+
+In the current input files only bins 2–7, 11–16 (core, 1–4 GeV) and 20 are
+non-empty. Whether to expose these samples as 2D (energy × CVN class) instead
+is an open question for the shared schema.
+
+Test against a running Docker server with `./run_test_spectra_docker.sh`
+(expect `ALL CHECKS PASSED`).
 
 ## Schemas
 
@@ -99,8 +146,10 @@ schemas (`/nova/jointfit_novat2k/include/nudock/schemas`) are not used.
 
 The server validates every request and response against them; a validation
 failure makes NuDock reply with HTTP 400 **and stop the server**. The schemas
-repo also defines `get_parameters` (optional) and `get_data_spectrum` /
-`get_mc_spectrum` (to be confirmed), which this server does not implement yet.
+repo also defines `get_parameters` (optional), which this server does not
+implement yet. `get_data_spectrum` / `get_mc_spectrum` are implemented against
+the current versions of their schemas, which are still marked "to be
+confirmed".
 
 To move to a newer version of the schemas:
 
