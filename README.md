@@ -13,6 +13,7 @@ You may also use podman by simply replacing "docker" with "podman" throughout.
     cd nova-sl7-novat2k
 
     # Fetch the fitting code which we are packaging, among other things
+    # (--recurse-submodules also fetches its extern/OscLib and extern/nudock-schemas)
     git clone -b feature/nudock_2024Ana --recurse-submodules git@github.com:novaexperiment/jointfit_novat2k
 
     # Build container using the default Dockerfile
@@ -66,8 +67,7 @@ singularity shell --writable image.sif
 # Server endpoints
 
 The server (`jointfit_novat2k/CAFAna/run.C`) registers five JSON-over-HTTP
-endpoints (schemas in `/nova/jointfit_novat2k/include/nudock/schemas` unless
-noted):
+endpoints (schemas: see [Schemas](#schemas) below):
 
 | Endpoint | Request | Response |
 |----------|---------|----------|
@@ -88,9 +88,33 @@ livetime) at the next `/log_likelihood` evaluation. Modes:
 - `"poisson"`: same, plus Poisson fluctuations (mock data; unseeded, differs every time)
 - `"reset"`: restore the original data loaded from `/jf_data`
 
-Its schema is not yet in NuDock main, so it ships in this package
-(`jointfit_novat2k/CAFAna/schemas/set_asimov_point.schema.json`, identical to
-the one on NuDock's `mach3_branch`) and is registered with an explicit path.
+## Schemas
+
+The request/response schemas are the common NOvA-T2K ones from
+[nova-t2k/nudock-schemas](https://github.com/nova-t2k/nudock-schemas), checked
+out as the `extern/nudock-schemas` git submodule of `jointfit_novat2k`. They are
+therefore pinned to the commit recorded there, and baked into the image at
+`/nova/jointfit_novat2k/extern/nudock-schemas/schemas`. NuDock's own bundled
+schemas (`/nova/jointfit_novat2k/include/nudock/schemas`) are not used.
+
+The server validates every request and response against them; a validation
+failure makes NuDock reply with HTTP 400 **and stop the server**. The schemas
+repo also defines `get_parameters` (optional) and `get_data_spectrum` /
+`get_mc_spectrum` (to be confirmed), which this server does not implement yet.
+
+To move to a newer version of the schemas:
+
+    git -C jointfit_novat2k/extern/nudock-schemas fetch
+    git -C jointfit_novat2k/extern/nudock-schemas checkout <commit or tag>
+    # rebuild the image, run the tests, then record the new pointer
+    git -C jointfit_novat2k add extern/nudock-schemas
+
+To try out schema changes without rebuilding, point the server at another
+directory with `NUDOCK_SCHEMAS_DIR` (a path inside the container). With
+`run_container_docker.sh` it is instead a host directory, which the script
+mounts into the container:
+
+    NUDOCK_SCHEMAS_DIR=../nudock-schemas/schemas ./run_container_docker.sh
 
 ## Non-standard interactions (NSI)
 
@@ -109,10 +133,12 @@ previous `OscCalcPMNSOpt` server):
 
 Every NSI key is reset to 0 on each `/set_parameters` call that omits it, so
 clients that never send them are unaffected. `/set_asimov_point` snapshots the
-NSI values too, so NSI Asimov data can be generated on the fly. The NSI-aware
-`set_parameters` schema (NuDock's own rejects unknown `osc_pars` keys) ships in
-`jointfit_novat2k/CAFAna/schemas/set_parameters.schema.json` and is registered
-with an explicit path, like `set_asimov_point`.
+NSI values too, so NSI Asimov data can be generated on the fly.
+
+The shared `set_parameters` schema requires the six standard parameters but
+accepts any other numeric `osc_pars` key, so it does not catch a mistyped NSI
+key. The server ignores keys it does not use (`/get_parameter_names` lists the
+ones it does) and prints a warning, once per key, in its log.
 
 Test against a running Docker server with `./run_test_nsi_docker.sh` (expect
 `ALL CHECKS PASSED`).
