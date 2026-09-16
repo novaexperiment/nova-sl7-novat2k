@@ -137,8 +137,14 @@ NSI values too, so NSI Asimov data can be generated on the fly.
 
 The shared `set_parameters` schema requires the six standard parameters but
 accepts any other numeric `osc_pars` key, so it does not catch a mistyped NSI
-key. The server ignores keys it does not use (`/get_parameter_names` lists the
-ones it does) and prints a warning, once per key, in its log.
+key. The server ignores `osc_pars` and `sys_pars` keys it does not use
+(`/get_parameter_names` lists the ones it does), lists them in every reply's
+status, and prints a warning in its log (once per key for `osc_pars`):
+
+    {"status": "Parameters set with warnings: ignored osc_pars [Eps_mumuu]; ignored sys_pars [not_a_syst]"}
+
+Without ignored keys the status is `"Parameters set successfully"`. The status
+is free-form text because the shared schema allows no other reply fields.
 
 Test against a running Docker server with `./run_test_nsi_docker.sh` (expect
 `ALL CHECKS PASSED`).
