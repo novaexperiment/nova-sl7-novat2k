@@ -66,7 +66,7 @@ singularity shell --writable image.sif
 
 # Server endpoints
 
-The server (`jointfit_novat2k/CAFAna/run.C`) registers seven JSON-over-HTTP
+The server (`jointfit_novat2k/CAFAna/run.C`) registers eight JSON-over-HTTP
 endpoints (schemas: see [Schemas](#schemas) below):
 
 | Endpoint | Request | Response |
@@ -75,12 +75,19 @@ endpoints (schemas: see [Schemas](#schemas) below):
 | `/set_parameters` | `{osc_pars: {...}, sys_pars: {...}}` (NSI keys optional, see below) | status object |
 | `/log_likelihood` | string (ignored) | `{log_likelihood, duration_us}` |
 | `/get_parameter_names` | string (ignored) | `{osc_pars: [...], sys_pars: [...]}` |
+| `/get_parameters` | string (ignored) | `{osc_pars: {name: value}, sys_pars: {name: value}, duration_us}`, the current values |
 | `/set_asimov_point` | string: `"asimov"` (or empty), `"poisson"`, `"reset"` | status string |
 | `/get_data_spectrum` | string (ignored) | data spectrum of every sample, see [Spectra](#spectra) |
 | `/get_mc_spectrum` | string (ignored) | expected spectrum of every sample at the current parameters, see [Spectra](#spectra) |
 
 Systematic shifts not listed in a `/set_parameters` request keep their previous
 value (unlike the NSI parameters, which are reset to 0).
+
+`/get_parameters` returns the values the next `/log_likelihood` will use, read
+back from the server. It lists every name of `/get_parameter_names`:
+systematics that are not shifted are 0, and so are all oscillation parameters
+before the first `/set_parameters`. Keys that `/set_parameters` ignored are
+not listed, and the reply can be sent back to `/set_parameters` as it is.
 
 `/set_asimov_point` generates Asimov fake data **on the fly** — the in-server
 equivalent of a `make_fakedata.C` output file, without restarting the server.
@@ -145,11 +152,10 @@ therefore pinned to the commit recorded there, and baked into the image at
 schemas (`/nova/jointfit_novat2k/include/nudock/schemas`) are not used.
 
 The server validates every request and response against them; a validation
-failure makes NuDock reply with HTTP 400 **and stop the server**. The schemas
-repo also defines `get_parameters` (optional), which this server does not
-implement yet. `get_data_spectrum` / `get_mc_spectrum` are implemented against
-the current versions of their schemas, which are still marked "to be
-confirmed".
+failure makes NuDock reply with HTTP 400 **and stop the server**. The server
+implements every schema in the repo, including the optional
+`get_parameters`. `get_data_spectrum` / `get_mc_spectrum` follow the current
+versions of their schemas, which are still marked "to be confirmed".
 
 To move to a newer version of the schemas:
 
