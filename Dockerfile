@@ -52,7 +52,9 @@ RUN mkdir /nova
 # Fetch NuDock from git. NUDOCK_REF is the branch, tag or commit to build,
 # e.g. to try out a branch:
 #   docker build --build-arg NUDOCK_REF=feature/verbosity -t novat2k_test .
-ARG NUDOCK_REF=main
+#ARG NUDOCK_REF=main
+# verbosity commit:
+ARG NUDOCK_REF=e97d713
 RUN cd /nova \
     && git clone https://github.com/NuDock/nudock.git \
     && git -C nudock checkout ${NUDOCK_REF} \
