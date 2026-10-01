@@ -49,9 +49,15 @@ RUN cd /tmp && \
 
 RUN mkdir /nova
 
-# Fetch NuDock from git
+# Fetch NuDock from git. NUDOCK_REF is the branch, tag or commit to build,
+# e.g. to try out a branch:
+#   docker build --build-arg NUDOCK_REF=feature/verbosity -t novat2k_test .
+ARG NUDOCK_REF=main
 RUN cd /nova \
-    && git clone --recurse-submodules https://github.com/NuDock/nudock.git
+    && git clone https://github.com/NuDock/nudock.git \
+    && git -C nudock checkout ${NUDOCK_REF} \
+    && git -C nudock submodule update --init --recursive \
+    && git -C nudock log -1 --format='NuDock %h %d %s'
 
 # For a local build, it's much easier to just check out the package beforehand
 COPY jointfit_novat2k /nova/jointfit_novat2k
