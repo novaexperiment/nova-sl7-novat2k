@@ -65,9 +65,9 @@ RUN cd /nova \
 COPY jointfit_novat2k /nova/jointfit_novat2k
 
 # Build everything
-RUN cd /nova/nudock/ && cmake -B build -DCMAKE_INSTALL_PREFIX:PATH=/nova/jointfit_novat2k  && cmake --build build && cmake --install build
+RUN cd /nova/nudock/ && cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/nova/jointfit_novat2k && cmake --build build && cmake --install build
 
-RUN cd /nova/jointfit_novat2k/ && ls && cmake -B build -DCMAKE_PREFIX_PATH=/nova/jointfit_novat2k && cmake --build build && cmake --install build
+RUN cd /nova/jointfit_novat2k/ && ls && cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/nova/jointfit_novat2k && cmake --build build && cmake --install build
 
 RUN echo -e '#!'"/bin/bash\nexport JOINTFIT_DIR=/nova/jointfit_novat2k/\necho Versions:\necho -n 'jointfit_novat2k: '\ncd \$JOINTFIT_DIR\ngit describe --tags\ncd \`mktemp -d\`\nroot -l -b -q \$JOINTFIT_DIR/CAFAna/load_libs.C \$JOINTFIT_DIR/CAFAna/run.C++" > /nova/run.sh && chmod +x /nova/run.sh
 
